@@ -10,30 +10,19 @@ def anisearch(atitle: str):
         query = PARSER2.search(query=atitle)
 
     result = []
+
     for anime in query:
         title = anime.get('title', 'Unknown')
         year = anime.get('year', 'N/A')
-
+        shikimori_id = anime.get('shikimori_id')
         additional = anime.get('additional_data', {})
         last_ep = additional.get('last_episode', 0)
 
         info = {
             'title': title,
             'year': year,
-            'last_episode': last_ep
+            'last_episode': last_ep,
+            'shikimori_id': shikimori_id, 
         }
         result.append(info)
-
-    for anime in result:
-        title = anime.get('title', 'Unknown')
-        year = anime.get('year', 'N/A')
-        last_ep = anime.get('last_episode', 0)
-        print(f"{title} ({year}) - episodes: {last_ep}")
-
-def aninfo():
-    PARSER1.get_link(
-        id="61169", 
-        id_type="shikimori",
-        seria_num=10,
-        translation_id="0"
-    )
+    return result

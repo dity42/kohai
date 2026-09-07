@@ -1,6 +1,6 @@
 [project]
 name = "kohai"
-version = "0.1.0"
+version = "0.2.0"
 description = "Add your description here"
 readme = "README.md"
 authors = [
@@ -9,7 +9,7 @@ authors = [
 requires-python = ">=3.12"
 dependencies = [
     "anime-parsers-ru>=1.18.0",
-    "rich>=15.0.0",
+    "pyfzf>=0.3.1",
 ]
 
 [project.scripts]
