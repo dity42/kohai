@@ -1,0 +1,20 @@
+[project]
+name = "kohai"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "dity", email = "275731998+dity42@users.noreply.github.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "anime-parsers-ru>=1.18.0",
+    "rich>=15.0.0",
+]
+
+[project.scripts]
+kohai = "kohai:main"
+
+[build-system]
+requires = ["uv_build>=0.12.5,<0.13.0"]
+build-backend = "uv_build"
