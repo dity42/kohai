@@ -17,13 +17,12 @@ def _first_parser_results(query):
         title = anime.get('title', 'Unknown')
         year = anime.get('year', 'N/A')
         shikimori_id = anime.get('shikimori_id')
-        additional = anime.get('additional_data', {})
-        last_ep = additional.get('last_episode', 0)
+        link = anime.get('link')
         info = {
             'title': title,
             'year': year,
-            'last_episode': last_ep,
             'shikimori_id': shikimori_id,
+            'link': link,
         }
         result.append(info)
     return result
