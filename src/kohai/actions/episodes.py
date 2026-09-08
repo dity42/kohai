@@ -6,12 +6,12 @@ from kohai.actions.search import anisearch
 PARSER1 = KodikParser()
 PARSER2 = AnimegoParser()
 
-def episode_picker(id: str, seria_num: int):
+def episode_picker(id: str, seria_num: int, t_id: str):
     return PARSER1.get_link(
         id=id, 
         id_type="shikimori",
         seria_num=seria_num,
-        translation_id="0"
+        translation_id=t_id,
     )
 
 def episode_watcher(source: str):
