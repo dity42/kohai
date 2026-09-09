@@ -13,23 +13,38 @@ def anime_selector():
     fzf_options = []
 
     for q in query:
-        title = q['title']
-        year = q['year']
-        shikimori_id = q['shikimori_id']
-        link = q['link']
-        episodes = episodes_info(link)
-        series_count = episodes['series_count']
-        translations = episodes['translations']
-        display = f"{title} ({year}) - episodes: {series_count}"
-        fzf_options.append(display)
+        source = q['source']
 
-        anime_map[display] = {
-            'title': title,
-            'year': year,
-            'shikimori_id': shikimori_id,
-            'series_count': series_count,
-            'translations': translations,
-        }
+        if source == 'animego':
+            display = f"{q.get('or_title', '')} - {q.get('title', 'Unknown')} ({q.get('year', 'N/A')})"
+            fzf_options.append(display)
+            
+            anime_map[display] = {
+                'title': q.get('title', 'Unknown'),
+                'year': q.get('year', 'N/A'),
+                'source': 'animego',
+                'available': False,
+            }
+            continue
+            
+        elif source == 'kodik':
+            title = q['title']
+            year = q['year']
+            shikimori_id = q['shikimori_id']
+            link = q['link']
+            episodes = episodes_info(link)
+            series_count = episodes['series_count']
+            translations = episodes['translations']
+            display = f"{title} ({year}) - episodes: {series_count}"
+            fzf_options.append(display)
+
+            anime_map[display] = {
+                'title': title,
+                'year': year,
+                'shikimori_id': shikimori_id,
+                'series_count': series_count,
+                'translations': translations,
+            }
 
     selected = fzf.prompt(fzf_options)
 
@@ -73,5 +88,5 @@ def anime_selector():
                                 select_episode = fzf.prompt([e for e in episodes])
                                 if select_episode:
                                     for ep in select_episode:
-                                        url = episode_picker(shikimori_id, ep, translate_id)[0]
+                                        url = episode_picker(shikimori_id, ep, translate_id)[0] # get link from tuple
                                         episode_watcher(url)
