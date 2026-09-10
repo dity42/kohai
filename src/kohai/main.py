@@ -1,7 +1,7 @@
-from kohai.actions.selector import anime_selector
+from kohai.actions.aniselector import aniselector
 
 def main() -> None:
-    anime_selector()
+    aniselector()
 
 if __name__ == "__main__":
     main()
