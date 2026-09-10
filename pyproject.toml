@@ -1,7 +1,7 @@
 [project]
 name = "kohai"
 version = "0.4.0"
-description = "Add your description here"
+description = "Interactive anime browser and player for the terminal"
 readme = "README.md"
 authors = [
     { name = "dity", email = "275731998+dity42@users.noreply.github.com" }
