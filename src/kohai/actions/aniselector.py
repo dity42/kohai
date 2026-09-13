@@ -1,9 +1,9 @@
 from pyfzf import FzfPrompt
 
 from kohai.api.anisearch import anisearch
-from kohai.api.kodik import episode_picker, episodes_info
+from kohai.actions.links import resolve_episode_links
 from kohai.actions.watch import episode_watcher
-from kohai.utils.builders import episode_selector, source_selector, translate_selector
+from kohai.utils.builders import source_selector, translate_selector, episode_selector
 
 fzf = FzfPrompt()
 
@@ -24,8 +24,11 @@ def aniselector():
 
     for selected_display in selected:
         item = display_map.get(selected_display)
-        if not item or item.get('available') is False:
-            print("Unavailable.")
+        if not item:
+            continue
+        
+        if item.get('available') is False:
+            print(f"{item.get('or_title', item.get('title'))} — unavailable")
             continue
 
         translate_options = dict(translate_selector(item['translations']))
@@ -34,16 +37,16 @@ def aniselector():
             continue
 
         for selected_translate in select_translate:
-            data = translate_options.get(selected_translate)
-            if not data:
+            translate_data = translate_options.get(selected_translate)
+            if not translate_data:
                 continue
 
-            episodes = episode_selector(data['series_range'])
+            episodes = episode_selector(translate_data['series_range'])
             select_episode = fzf.prompt(episodes)
             if not select_episode:
                 continue
 
             for ep in select_episode:
-                links = episode_picker(item['shikimori_id'], int(ep), data['id'])
+                links = resolve_episode_links(item, ep, translate_data['id'])
                 if links:
                     episode_watcher(links[0])

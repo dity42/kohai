@@ -1,13 +1,11 @@
 from anime_parsers_ru import KodikParser
 
-from kohai.api.anisearch import anisearch
-
 parser = KodikParser()
 
-def episode_picker(id: str, seria_num: int, t_id: str):
+def episode_picker(id: str, id_type:str, seria_num: int, t_id: str):
     return parser.get_link(
         id=id, 
-        id_type="shikimori",
+        id_type=id_type,
         seria_num=seria_num,
         translation_id=t_id,
     )

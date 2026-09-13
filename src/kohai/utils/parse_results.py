@@ -4,6 +4,9 @@ def _first_parser_results(query):
             'title': anime.get('title', 'Unknown'),
             'year': anime.get('year', 'N/A'),
             'shikimori_id': anime.get('shikimori_id'),
+            'kinopoisk_id': anime.get('kinopoisk_id'),
+            'imdb_id': anime.get('imdb_id'),
+            'worldart_link': anime.get('worldart_link'),
             'link': anime.get('link'),
             'source': 'kodik',
         }
