@@ -1,4 +1,4 @@
-from kohai.actions.aniselector import aniselector
+from kohai.app.aniselector import aniselector
 
 def main() -> None:
     aniselector()
