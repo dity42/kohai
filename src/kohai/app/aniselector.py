@@ -3,6 +3,7 @@ from pyfzf import FzfPrompt
 import subprocess
 
 from kohai.app.api import anisearch
+from kohai.app.history import add_to_history
 
 fzf = FzfPrompt()
 
@@ -120,5 +121,17 @@ def aniselector():
         return
 
     url = 'https:' + link[0] + quality + '.mp4'
-    mpv_command = ["mpv", url]
-    subprocess.run(mpv_command)
+    try:
+        subprocess.run(["mpv", "--save-position-on-quit", url])
+    except FileNotFoundError:
+        print("mpv not found.")
+        return
+
+    add_to_history(
+        title=anime.get('title') or query,
+        episode=episode,
+        translation=translation.get('name'),
+        translation_id=translation.get('id'),
+        quality=quality,
+        url=url
+    )
