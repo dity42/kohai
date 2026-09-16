@@ -79,9 +79,7 @@ def pick_quality():
         return None
     return picked[0]
 
-def aniselector():
-    atitle = input("Type anime name: ")
-
+def aniselector(atitle: str, quality: str | None = None):
     items = anisearch(atitle)
     if not items: 
         print("Nothing found.")
@@ -111,9 +109,10 @@ def aniselector():
     if episode is None:
         return
 
-    quality = pick_quality()
-    if not quality:
-        return
+    if quality is None:
+        quality = pick_quality()
+        if not quality:
+            return
 
     link = resolve_episode_links(item, episode, translation['id'])
     if not link:
