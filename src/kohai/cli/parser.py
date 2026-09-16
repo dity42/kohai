@@ -27,6 +27,9 @@ def build_parser() -> argparse.ArgumentParser:
     search.add_argument("query", nargs="?", default=None)
     search.add_argument("-q", "--quality", choices=["360", "480", "720"], default=None)
 
+    history = subparsers.add_parser("history", help="Show watch history")
+    history.add_argument("-l", "--limit", type=int, default=10, help="Number of entries to show (default: 10")
+
     options = parser.add_argument_group("Options")
     options.add_argument("-h", "--help", action="help", help="Show this help message and exit")
 

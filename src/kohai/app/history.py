@@ -31,3 +31,10 @@ def add_to_history(title, episode, translation, translation_id, quality, url):
         "watched_at": datetime.now().isoformat(timespec="seconds")
     })
     save_history(history)
+
+def get_recent(limit: int = 10) -> list[dict]:
+    history = load_history()
+    return list(reversed(history))[:limit]
+
+def clear_history() -> None:
+    save_history([])
