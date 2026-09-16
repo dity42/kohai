@@ -56,6 +56,18 @@ def pick_anime(items):
         return None 
     return items[display.index(picked[0])]
 
+def pick_title(candidates):
+    if not candidates:
+        return None
+    display = [
+        f"{c.get('title', 'Unknown')} ({c.get('year', 'N/A')})"
+        for c in candidates
+    ]
+    picked = fzf.prompt(display)
+    if not picked:
+        return None
+    return candidates[display.index(picked[0])]
+
 def pick_translation(translations):
     display = [f"{t.get('name')} (type: {t.get('type')})" for t in translations]
     picked = fzf.prompt(display)
@@ -90,12 +102,18 @@ def aniselector(atitle: str, quality: str | None = None):
         return
 
     query = anime.get('original_title') or anime['title']
-    candidate = KodikParser().search(query, limit=1)
-    if not candidate:
-        print("Nothing found.")
+    candidates = KodikParser().search(query)
+    if not candidates:
+        print("Nothing found in kodik.")
         return
 
-    item = candidate[0]
+    if len(candidates) == 1:
+        item = candidates[0]
+    else: 
+        item = pick_title(candidates)
+        if not item:
+            return
+
     normalize_ids(item)
     info = KodikParser().get_info_from_embed("https:" + item['link'])
     translations = info['translations']
