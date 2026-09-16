@@ -5,19 +5,10 @@ def build_parser() -> argparse.ArgumentParser:
         prog="kohai",
         description="Search and watch anime from the terminal.",
     )
-
-    parser.add_argument(
-        "query",
-        nargs="?",
-        default=None,
-        help="Anime title to search for. If omitted, you'll be prompted.",
-    )
-
-    parser.add_argument(
-        "-q", "--quality",
-        choices=["360", "480", "720"],
-        default=None,
-        help="Video quality. If omitted, you'll be prompted.",
-    )
+    subparsers = parser.add_subparsers(dest="command", title="COMMAND")
+    
+    search = subparsers.add_parser("search", help="Search and watch anime")
+    search.add_argument("query", nargs="?", default=None)
+    search.add_argument("-q", "--quality", choices=["360", "480", "720"], default=None)
 
     return parser

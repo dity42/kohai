@@ -1,17 +1,15 @@
 from kohai.cli.parser import build_parser
-from kohai.app.aniselector import aniselector
+from kohai.cli.commands import dispatch
 
 def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
 
-    query = args.query
-    if not query:
-        query = input("Type anime name: ").strip()
-        if not query:
-            return
-    
-    aniselector(query, quality=args.quality)
+    if args.command is None:
+        parser.print_help()
+        return
+
+    dispatch(args)
 
 if __name__ == "__main__":
     main()
