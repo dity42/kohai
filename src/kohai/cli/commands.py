@@ -1,3 +1,6 @@
+import subprocess
+from pyfzf import FzfPrompt
+
 from kohai.app.aniselector import aniselector
 from kohai.app.history import get_all, get_recent, clear_history
 from kohai.cli.format import format_relative_time
@@ -39,11 +42,57 @@ def run_history_clear():
     clear_history()
     print("History cleared.")
 
+def pick_history_entry(entries):
+    display = [
+        f"{e['title']} ({e['translation']}) - {format_relative_time(e['watched_at'])}"
+        for e in entries
+    ] 
+    picked = FzfPrompt().prompt(display)
+    if not picked:
+        return None
+    return entries[display.index(picked[0])]
+
+def run_history_watch(index: str | None) -> None:
+    entries = get_all()
+    if not entries:
+        print("No history yet.")
+        return
+
+    if index is None:
+        entry = pick_history_entry(entries)
+    elif index == "last":
+        entry = entries[0]
+    else:
+        try:
+            n = int(index)
+        except ValueError:
+            print(f"Invalid index: {index}")
+            return
+        if n < 1 or n > len(entries):
+            print(f"No entry number {n} (history has {len(entries)} entries).")
+            return
+        entry = entries[n-1]
+
+    if not entry:
+        return
+
+    url = entry['url']
+    try:
+        subprocess.run(["mpv", url])
+    except FileNotFoundError:
+        print("mpv not found.")
+
 def run_history(args):
     action = getattr(args, "history_action", None)
+
     if action == "clear":
         run_history_clear()
         return
+
+    if action == "watch":
+        run_history_watch(args.index)
+        return
+
     run_history_list(args.limit)
 
 

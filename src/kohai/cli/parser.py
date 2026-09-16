@@ -33,6 +33,9 @@ def build_parser() -> argparse.ArgumentParser:
     history_sub = history.add_subparsers(dest="history_action")
     history_sub.add_parser("clear", help="Clear watch history")
 
+    watch = history_sub.add_parser("watch", help="Replay from history")
+    watch.add_argument("index", nargs="?", default=None)
+
     options = parser.add_argument_group("Options")
     options.add_argument("-h", "--help", action="help", help="Show this help message and exit")
 
