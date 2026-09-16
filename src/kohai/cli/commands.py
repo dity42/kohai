@@ -1,5 +1,5 @@
 from kohai.app.aniselector import aniselector
-from kohai.app.history import get_recent, clear_history
+from kohai.app.history import get_all, get_recent, clear_history
 from kohai.cli.format import format_relative_time
 from kohai.cli.parser import build_parser
 
@@ -24,7 +24,26 @@ def run_history_list(limit: int):
         when = format_relative_time(entry["watched_at"])
         print(f"{i}. {entry['title']} ({entry['translation']}) - {when}")
 
+def run_history_clear():
+    entries = get_all()
+    if not entries:
+        print("History is already empty.")
+        return
+
+    if len(entries) >= 50:
+        answer = input(f"Clear {len(entries)} entries? [y/N]: ").strip().lower()
+        if answer not in ("y", "yes"):
+            print("Canceled.")
+            return
+
+    clear_history()
+    print("History cleared.")
+
 def run_history(args):
+    action = getattr(args, "history_action", None)
+    if action == "clear":
+        run_history_clear()
+        return
     run_history_list(args.limit)
 
 

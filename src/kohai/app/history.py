@@ -36,5 +36,8 @@ def get_recent(limit: int = 10) -> list[dict]:
     history = load_history()
     return list(reversed(history))[:limit]
 
+def get_all() -> list[dict]:
+    return list(reversed(load_history()))
+
 def clear_history() -> None:
     save_history([])
