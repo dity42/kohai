@@ -40,6 +40,13 @@ def build_parser() -> argparse.ArgumentParser:
     schedule.add_argument("-t", "--today", action="store_true", help="Show only today's schedule")
     schedule.add_argument("-u", "--updates", action="store_true", help="Show recent translation updates")
 
+    bmark = subparsers.add_parser("bmark", help="Manage bookmarks")
+    
+    bmark_sub = bmark.add_subparsers(dest="bmark_action")
+
+    add = bmark_sub.add_parser("add", help="Add a bookmark")
+    add.add_argument("query", help="Anime title to search")
+
     options = parser.add_argument_group("Options")
     options.add_argument("-h", "--help", action="help", help="Show this help message and exit")
 

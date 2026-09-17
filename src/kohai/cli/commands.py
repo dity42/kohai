@@ -1,10 +1,12 @@
 import subprocess
 from pyfzf import FzfPrompt
 
-from kohai.app.aniselector import aniselector
+from kohai.app.aniselector import aniselector, pick_anime
+from kohai.app.api import anisearch
 from kohai.app.history import get_all, get_recent, clear_history
-from kohai.cli.format import format_relative_time
 from kohai.app.schedule import get_schedule, get_today, get_updates
+from kohai.app.bookmarks import load_bookmarks, add_bookmark, is_bookmarked
+from kohai.cli.format import format_relative_time
 from kohai.cli.parser import build_parser
 
 def run_search(query: str, quality: str | None) -> None:
@@ -150,6 +152,41 @@ def run_schedule(args):
     
     run_schedule_all()
 
+def run_bmark_list() -> None:
+    bookmarks = load_bookmarks()
+    if not bookmarks:
+        print("No bookmarks yet.")
+        return
+
+    for i, b in enumerate(bookmarks, start=1):
+        print(f"{i}. {b['title']}")
+
+def run_bmark_add(query: str) -> None:
+    items = anisearch(query)
+    if not items:
+        print("Nothing found.")
+        return
+
+    anime = pick_anime(items)
+    if not anime:
+        return
+
+    title = anime["title"]
+    if is_bookmarked(title):
+        print(f"'{title}' is already in bookmarks.")
+        return
+
+    add_bookmark(title, anime.get("original_title"))
+    print(f"Added: {title}")
+
+def run_bmark(args) -> None:
+    action = getattr(args, "bmark_action", None)
+    if action == "add":
+        run_bmark_add(args.query)
+        return
+
+    run_bmark_list()
+
 
 def dispatch(args) -> None:
     if args.command == "help":
@@ -162,5 +199,7 @@ def dispatch(args) -> None:
         run_history(args)
     elif args.command == "schedule":
         run_schedule(args)
+    elif args.command == "bmark":
+        run_bmark(args)
     else: 
         print(f"Unknown command: {args.command}")
