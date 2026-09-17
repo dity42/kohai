@@ -4,6 +4,7 @@ from pyfzf import FzfPrompt
 from kohai.app.aniselector import aniselector
 from kohai.app.history import get_all, get_recent, clear_history
 from kohai.cli.format import format_relative_time
+from kohai.app.schedule import get_schedule, get_today
 from kohai.cli.parser import build_parser
 
 def run_search(query: str, quality: str | None) -> None:
@@ -95,6 +96,35 @@ def run_history(args):
 
     run_history_list(args.limit)
 
+def run_schedule_list(entries):
+    for e in entries:
+        time = e["time"]
+        prefix = f"{time}  " if time else ""
+        total = e.get("total")
+        suffix = f" (из {total})" if total else ""
+        print(f"  {prefix}{e['title']} — эп. {e['episode']}{suffix}")
+
+def run_schedule_all() -> None:
+    data = get_schedule()
+    for day, entries in data["schedule"].items():
+        label = data["schedule_dates"].get(day, "")
+        header = f"{day} ({label})" if label else day
+        print(f"{header}:")
+        run_schedule_list(entries)
+        print()
+
+def run_schedule(args):
+    if args.today:
+        day, entries = get_today()
+        if not entries:
+            print("Nothing scheduled for today.")
+            return
+        print(f"{day}:")
+        run_schedule_list(entries)
+        return
+    
+    run_schedule_all()
+
 
 def dispatch(args) -> None:
     if args.command == "help":
@@ -105,5 +135,7 @@ def dispatch(args) -> None:
         run_search(args.query, args.quality)
     elif args.command == "history":
         run_history(args)
+    elif args.command == "schedule":
+        run_schedule(args)
     else: 
         print(f"Unknown command: {args.command}")

@@ -36,6 +36,9 @@ def build_parser() -> argparse.ArgumentParser:
     watch = history_sub.add_parser("watch", help="Replay from history")
     watch.add_argument("index", nargs="?", default=None)
 
+    schedule = subparsers.add_parser("schedule", help="Show anime schedule")
+    schedule.add_argument("-t", "--today", action="store_true", help="Show only today's schedule")
+
     options = parser.add_argument_group("Options")
     options.add_argument("-h", "--help", action="help", help="Show this help message and exit")
 

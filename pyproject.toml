@@ -1,6 +1,6 @@
 [project]
 name = "kohai"
-version = "0.11.0"
+version = "0.12.0"
 description = "Interactive anime browser and player for the terminal"
 readme = "README.md"
 authors = [
