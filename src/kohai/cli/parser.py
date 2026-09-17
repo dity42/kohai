@@ -38,6 +38,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     schedule = subparsers.add_parser("schedule", help="Show anime schedule")
     schedule.add_argument("-t", "--today", action="store_true", help="Show only today's schedule")
+    schedule.add_argument("-u", "--updates", action="store_true", help="Show recent translation updates")
 
     options = parser.add_argument_group("Options")
     options.add_argument("-h", "--help", action="help", help="Show this help message and exit")

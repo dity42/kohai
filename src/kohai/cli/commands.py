@@ -4,7 +4,7 @@ from pyfzf import FzfPrompt
 from kohai.app.aniselector import aniselector
 from kohai.app.history import get_all, get_recent, clear_history
 from kohai.cli.format import format_relative_time
-from kohai.app.schedule import get_schedule, get_today
+from kohai.app.schedule import get_schedule, get_today, get_updates
 from kohai.cli.parser import build_parser
 
 def run_search(query: str, quality: str | None) -> None:
@@ -112,8 +112,33 @@ def run_schedule_all() -> None:
         print(f"{header}:")
         run_schedule_list(entries)
         print()
+        
+def run_schedule_updates(entries) -> None:
+    if not entries:
+        print("No recent updates.")
+        return
+
+    for e in entries:
+        time = (e.get("time") or "").strip()
+        translation = e.get("translation") or ""
+        episode = e.get("episode")
+
+        prefix = f"{time}  " if time else ""
+        suffix = f" ({translation})" if translation else ""
+
+        if episode and episode != "None":
+            ep_str = f" — эп. {episode}"
+        else:
+            ep_str = ""
+
+        print(f"{prefix}{e['title']}{suffix}{ep_str}")
 
 def run_schedule(args):
+    if args.updates:
+        entries = get_updates()
+        run_schedule_updates(entries)
+        return
+
     if args.today:
         day, entries = get_today()
         if not entries:
