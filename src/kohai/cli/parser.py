@@ -52,6 +52,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     watch = bmark_sub.add_parser("watch", help="Watch from bookmarks")
     watch.add_argument("index", nargs="?", default=None, help="Bookmark number (optional)")
+    watch.add_argument("-q", "--quality", choices=["360", "480", "720"], default=None)
 
     options = parser.add_argument_group("Options")
     options.add_argument("-h", "--help", action="help", help="Show this help message and exit")

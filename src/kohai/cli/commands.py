@@ -214,7 +214,7 @@ def run_bmark_rm(index: str | None) -> None:
     remove_bookmark(idx)
     print(f"Removed: {removed}")
 
-def run_bmark_watch(index: str | None) -> None:
+def run_bmark_watch(index: str | None, quality=None) -> None:
     bookmarks = load_bookmarks()
     if not bookmarks:
         print("No bookmarks yet.")
@@ -238,6 +238,7 @@ def run_bmark_watch(index: str | None) -> None:
     entry = bookmarks[idx]
     aniselector(
         entry["title"],
+        quality=quality,
         original_title=entry.get("original_title"),
     )
 
@@ -252,7 +253,7 @@ def run_bmark(args) -> None:
         return
 
     if action == "watch":
-        run_bmark_watch(args.index)
+        run_bmark_watch(args.index, args.quality)
         return
 
     run_bmark_list()
