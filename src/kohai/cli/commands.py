@@ -5,7 +5,7 @@ from kohai.app.aniselector import aniselector, pick_anime
 from kohai.app.api import anisearch
 from kohai.app.history import get_all, get_recent, clear_history
 from kohai.app.schedule import get_schedule, get_today, get_updates
-from kohai.app.bookmarks import load_bookmarks, add_bookmark, is_bookmarked
+from kohai.app.bookmarks import load_bookmarks, add_bookmark, is_bookmarked, remove_bookmark
 from kohai.cli.format import format_relative_time
 from kohai.cli.parser import build_parser
 
@@ -179,10 +179,48 @@ def run_bmark_add(query: str) -> None:
     add_bookmark(title, anime.get("original_title"))
     print(f"Added: {title}")
 
+def pick_bookmark(bookmarks):
+    if not bookmarks:
+        return None 
+    display = [f"{b['title']}" for b in bookmarks]
+    picked = FzfPrompt().prompt(display)
+    if not picked:
+        return None 
+    return display.index(picked[0])
+
+def run_bmark_rm(index: str | None) -> None:
+    bookmarks = load_bookmarks()
+    if not bookmarks:
+        print("No bookmarks yet.")
+        return 
+
+    if index is None:
+        idx = pick_bookmark(bookmarks)
+        if idx is None:
+            return
+    else:
+        try:
+            n = int(index)
+        except ValueError:
+            print(f"Invalid index: {index}")
+            return 
+        if n < 1 or n > len(bookmarks):
+            print(f"No bookmark number {n} (bookmarks has {len(bookmarks)} entries).")
+            return
+        idx = n - 1
+
+    removed = bookmarks[idx]["title"]
+    remove_bookmark(idx)
+    print(f"Removed: {removed}")
+
 def run_bmark(args) -> None:
     action = getattr(args, "bmark_action", None)
     if action == "add":
         run_bmark_add(args.query)
+        return
+
+    if action == "rm":
+        run_bmark_rm(args.index)
         return
 
     run_bmark_list()

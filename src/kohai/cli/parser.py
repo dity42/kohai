@@ -47,6 +47,9 @@ def build_parser() -> argparse.ArgumentParser:
     add = bmark_sub.add_parser("add", help="Add a bookmark")
     add.add_argument("query", help="Anime title to search")
 
+    rm = bmark_sub.add_parser("rm", help="Remove a bookmark")
+    rm.add_argument("index", nargs="?", default=None, help="Bookmark number (optional)")
+
     options = parser.add_argument_group("Options")
     options.add_argument("-h", "--help", action="help", help="Show this help message and exit")
 

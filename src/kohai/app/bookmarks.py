@@ -28,3 +28,9 @@ def add_bookmark(title: str, original_title: str | None) -> None:
         "original_title": original_title,
     })
     save_bookmarks(bookmarks)
+
+def remove_bookmark(index: int) -> None:
+    bookmarks = load_bookmarks()
+    if 0 <= index < len(bookmarks):
+        bookmarks.pop(index)
+        save_bookmarks(bookmarks)
