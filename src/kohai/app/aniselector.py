@@ -91,17 +91,21 @@ def pick_quality():
         return None
     return picked[0]
 
-def aniselector(atitle: str, quality: str | None = None):
-    items = anisearch(atitle)
-    if not items: 
-        print("Nothing found.")
-        return
+def aniselector(atitle: str, quality: str | None = None, original_title: str | None = None):
+    if original_title: 
+        query = original_title
+        title = atitle
+    else:
+        items = anisearch(atitle)
+        if not items: 
+            print("Nothing found.")
+            return
+        anime = pick_anime(items)
+        if not anime:
+            return
+        query = anime.get('original_title') or anime['title']
+        title = anime.get('title') or query
 
-    anime = pick_anime(items)
-    if not anime:
-        return
-
-    query = anime.get('original_title') or anime['title']
     candidates = KodikParser().search(query)
     if not candidates:
         print("Nothing found in kodik.")
@@ -145,7 +149,7 @@ def aniselector(atitle: str, quality: str | None = None):
         return
 
     add_to_history(
-        title=anime.get('title') or query,
+        title=title,
         episode=episode,
         translation=translation.get('name'),
         translation_id=translation.get('id'),

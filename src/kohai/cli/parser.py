@@ -50,6 +50,9 @@ def build_parser() -> argparse.ArgumentParser:
     rm = bmark_sub.add_parser("rm", help="Remove a bookmark")
     rm.add_argument("index", nargs="?", default=None, help="Bookmark number (optional)")
 
+    watch = bmark_sub.add_parser("watch", help="Watch from bookmarks")
+    watch.add_argument("index", nargs="?", default=None, help="Bookmark number (optional)")
+
     options = parser.add_argument_group("Options")
     options.add_argument("-h", "--help", action="help", help="Show this help message and exit")
 
