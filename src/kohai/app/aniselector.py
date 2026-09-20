@@ -47,6 +47,9 @@ def pick_anime(items):
     if not items:
         return None 
 
+    if len(items) == 1:
+        return items[0]
+
     display =  [
         f"{i.get('title', 'Unknown')} - {i.get('original_title', '')}".strip(" -") 
         for i in items
@@ -59,6 +62,10 @@ def pick_anime(items):
 def pick_title(candidates):
     if not candidates:
         return None
+
+    if len(candidates) == 1:
+        return candidates[0]
+
     display = [
         f"{c.get('title', 'Unknown')} ({c.get('year', 'N/A')})"
         for c in candidates
@@ -69,6 +76,12 @@ def pick_title(candidates):
     return candidates[display.index(picked[0])]
 
 def pick_translation(translations):
+    if not translations: 
+        return None
+
+    if len(translations) == 1:
+        return translations[0]
+
     display = [f"{t.get('name')} (type: {t.get('type')})" for t in translations]
     picked = fzf.prompt(display)
     if not picked:
@@ -78,7 +91,12 @@ def pick_translation(translations):
 def pick_episode(series_range):
     if not series_range:
         return None
-    episodes = [str(e) for e in range(series_range[0], series_range[1] + 1)]
+
+    episodes = list(range(series_range[0], series_range[1] + 1))
+    if len(episodes) == 1:
+        return episodes[0]
+
+    display = [str(e) for e in episodes]
     picked = fzf.prompt(episodes)
     if not picked:
         return None

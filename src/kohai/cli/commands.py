@@ -48,6 +48,10 @@ def run_history_clear():
     print("History cleared.")
 
 def pick_history_entry(entries):
+    if not entries:
+        return None 
+    if len(entries) == 1:
+        return entries[0]
     display = [
         f"{e['title']} ({e['translation']}) - {format_relative_time(e['watched_at'])}"
         for e in entries
@@ -184,6 +188,8 @@ def run_bmark_add(query: str) -> None:
 def pick_bookmark(bookmarks):
     if not bookmarks:
         return None 
+    if len(bookmarks) == 1:
+        return 0
     display = [f"{b['title']}" for b in bookmarks]
     picked = FzfPrompt().prompt(display)
     if not picked:
