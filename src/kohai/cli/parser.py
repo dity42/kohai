@@ -54,6 +54,9 @@ def build_parser() -> argparse.ArgumentParser:
     watch.add_argument("index", nargs="?", default=None, help="Bookmark number (optional)")
     watch.add_argument("-q", "--quality", choices=["360", "480", "720"], default=None)
 
+    info = subparsers.add_parser("info", help="Show anime info")
+    info.add_argument("query", nargs="?", default=None, help="Anime title")
+
     options = parser.add_argument_group("Options")
     options.add_argument("-h", "--help", action="help", help="Show this help message and exit")
 

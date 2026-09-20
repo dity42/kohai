@@ -1,4 +1,5 @@
 import subprocess
+from anime_parsers_ru import AnimegoParser
 from pyfzf import FzfPrompt
 
 from kohai.app import bookmarks
@@ -258,6 +259,61 @@ def run_bmark(args) -> None:
 
     run_bmark_list()
 
+def print_info(info: dict) -> None:
+    fields = [
+        ("type", "Type"),
+        ("aired_at", "Aired"),
+        ("episodes", "Episodes"),
+        ("status", "Status"),
+        ("duration", "Duration"),
+        ("studio", "Studio"),
+        ("director", "Director"),
+        ("author", "Author"),
+        ("original_source", "Source"),
+        ("score", "Score"),
+    ]
+
+    titles = [t.strip() for t in (info.get("title") or "").split("\n") if t.strip()]
+    if titles:
+        print(f"Title: {'/'.join(titles)}")
+
+    for key, label in fields:
+        value = info.get(key)
+        if value:
+            print(f"{label}: {value}")
+
+    genres = info.get("genres")
+    if genres:
+        print(f"Genres: {', '.join(genres)}")
+
+    description = info.get("description")
+    if description:
+        text = " ".join(description.split())
+        print()
+        print(text)
+
+def run_info(query: str | None) -> None:
+    if not query:
+        query = input("Type anime name: ").strip()
+        if not query:
+            return
+
+    items = anisearch(query)
+    if not items:
+        print("Nothing found.")
+        return
+
+    anime = pick_anime(items)
+    if not anime:
+        return
+
+    info = AnimegoParser().anime_info(url=anime["link"])
+    if not info:
+        print("No info available.")
+        return
+
+    print_info(info)
+
 
 def dispatch(args) -> None:
     if args.command == "help":
@@ -272,5 +328,7 @@ def dispatch(args) -> None:
         run_schedule(args)
     elif args.command == "bmark":
         run_bmark(args)
+    elif args.command == "info":
+        run_info(args.query)
     else: 
         print(f"Unknown command: {args.command}")
