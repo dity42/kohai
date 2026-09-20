@@ -350,9 +350,9 @@ def print_info(info: dict) -> None:
     if genres or description:
         desc_table = Table(show_header=False, box=box.ROUNDED, padding=(0, 2))
         if genres:
-            desc_table.add_row(f"[bold cyan]Genres[/bold cyan] {', '.join(genres)}")
+            desc_table.add_row(f"[bold cyan]Genres:[/bold cyan] {', '.join(genres)}")
         if description:
-            desc_table.add_row("[bold cyan]Description:[/bold cyan]")
+            desc_table.add_row("[bold cyan]Description[/bold cyan]")
             desc_table.add_row(" ".join(description.split()))
         console.print(desc_table)
 
