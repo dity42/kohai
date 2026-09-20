@@ -1,6 +1,10 @@
 import subprocess
+
 from anime_parsers_ru import AnimegoParser
 from pyfzf import FzfPrompt
+from rich.console import Console
+from rich.table import Table
+from rich import box
 
 from kohai.app import bookmarks
 from kohai.app.aniselector import aniselector, pick_anime
@@ -10,6 +14,9 @@ from kohai.app.schedule import get_schedule, get_today, get_updates
 from kohai.app.bookmarks import load_bookmarks, add_bookmark, is_bookmarked, remove_bookmark
 from kohai.cli.format import format_relative_time
 from kohai.cli.parser import build_parser
+
+console = Console()
+fzf = FzfPrompt()
 
 def run_search(query: str, quality: str | None) -> None:
     if not query:
@@ -56,7 +63,7 @@ def pick_history_entry(entries):
         f"{e['title']} ({e['translation']}) - {format_relative_time(e['watched_at'])}"
         for e in entries
     ] 
-    picked = FzfPrompt().prompt(display)
+    picked = fzf.prompt(display)
     if not picked:
         return None
     return entries[display.index(picked[0])]
@@ -191,7 +198,7 @@ def pick_bookmark(bookmarks):
     if len(bookmarks) == 1:
         return 0
     display = [f"{b['title']}" for b in bookmarks]
-    picked = FzfPrompt().prompt(display)
+    picked = fzf.prompt(display)
     if not picked:
         return None 
     return display.index(picked[0])
@@ -293,37 +300,61 @@ def run_bmark(args) -> None:
     run_bmark_list()
 
 def print_info(info: dict) -> None:
-    fields = [
-        ("type", "Type"),
-        ("aired_at", "Aired"),
-        ("episodes", "Episodes"),
-        ("status", "Status"),
-        ("duration", "Duration"),
-        ("studio", "Studio"),
-        ("director", "Director"),
-        ("author", "Author"),
-        ("original_source", "Source"),
-        ("score", "Score"),
-    ]
-
+    title_table = Table(show_header=False, box=box.ROUNDED, padding=(0, 2))
     titles = [t.strip() for t in (info.get("title") or "").split("\n") if t.strip()]
-    if titles:
-        print(f"Title: {'/'.join(titles)}")
+    if len(titles) == 1:
+        title_table.add_row(f"[bold cyan]Title:[/bold cyan] {titles[0]}")
+    elif len(titles) > 1:
+        title_table.add_row("[bold cyan]Titles:[/bold cyan]")
+        for t in titles:
+            title_table.add_row(f"  — {t}")
+    title_table.add_row(f"[bold cyan]Score:[/bold cyan] {info.get("score") or "—"}")
+    console.print(title_table)
 
-    for key, label in fields:
-        value = info.get(key)
-        if value:
-            print(f"{label}: {value}")
+    table1 = Table(show_header=False, box=box.ROUNDED, padding=(0, 2))
+    table1.add_row("[bold cyan]Aired[/bold cyan]", info.get("aired_at") or "—")
+    table1.add_row("[bold cyan]Type[/bold cyan]", info.get("type") or "—")
+    table1.add_row("[bold cyan]Status[/bold cyan]", info.get("status") or "—")
+
+    type_ = info.get("type") or ""
+    episodes = info.get("episodes")
+    duration = info.get("duration")
+
+    if type_ == "Фильм" or episodes == "1":
+        table1.add_row("[bold cyan]Duration[/bold cyan]", duration or "—")
+    else:
+        if episodes and duration:
+            ep_str = f"{episodes} по {duration}"
+        elif episodes:
+            ep_str = episodes
+        elif duration:
+            ep_str = duration
+        else:
+            ep_str = "—"
+        table1.add_row("[bold cyan]Episodes[/bold cyan]", ep_str)
+
+    table2 = Table(show_header=False, box=box.ROUNDED, padding=(0, 2))
+    table2.add_row("[bold cyan]Source[/bold cyan]", info.get("original_source") or "—")
+    table2.add_row("[bold cyan]Author[/bold cyan]", info.get("author") or "—")
+    table2.add_row("[bold cyan]Studio[/bold cyan]", info.get("studio") or "—")
+    table2.add_row("[bold cyan]Director[/bold cyan]", info.get("director") or "—")
+
+    layout = Table.grid(padding=(0, 1))
+    layout.add_column()
+    layout.add_column()
+    layout.add_row(table1, table2)
+    console.print(layout)
 
     genres = info.get("genres")
-    if genres:
-        print(f"Genres: {', '.join(genres)}")
-
     description = info.get("description")
-    if description:
-        text = " ".join(description.split())
-        print()
-        print(text)
+    if genres or description:
+        desc_table = Table(show_header=False, box=box.ROUNDED, padding=(0, 2))
+        if genres:
+            desc_table.add_row(f"[bold cyan]Genres[/bold cyan] {', '.join(genres)}")
+        if description:
+            desc_table.add_row("[bold cyan]Description:[/bold cyan]")
+            desc_table.add_row(" ".join(description.split()))
+        console.print(desc_table)
 
 def run_info(query: str | None, skip_pick: bool = False) -> None:
     if not query:
