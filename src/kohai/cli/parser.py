@@ -7,10 +7,6 @@ class SubcommandHelpFormatter(argparse.RawDescriptionHelpFormatter):
         if action.nargs == argparse.PARSER:
             parts = "\n".join(parts.split("\n")[1:])
         return parts
-    def add_usage(self, usage, actions, groups, prefix=None):
-        if prefix is None:
-            prefix = "Usage: "
-        return super().add_usage(usage, actions, groups, prefix)
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
@@ -18,7 +14,6 @@ def build_parser() -> argparse.ArgumentParser:
         usage="kohai [OPTIONS] <COMMAND>",
         description="Search and watch anime from the terminal.",
         formatter_class=SubcommandHelpFormatter,
-        add_help=False,
     )
 
     parser.add_argument(
@@ -27,7 +22,7 @@ def build_parser() -> argparse.ArgumentParser:
         version=f"kohai {version('kohai')}",
     )
 
-    subparsers = parser.add_subparsers(dest="command", title="Commands", metavar="")
+    subparsers = parser.add_subparsers(dest="command", title="commands", metavar="")
     
     help = subparsers.add_parser("help", help="Show this help message")
 
@@ -67,8 +62,5 @@ def build_parser() -> argparse.ArgumentParser:
 
     info = subparsers.add_parser("info", help="Show anime info")
     info.add_argument("query", nargs="?", default=None, help="Anime title")
-
-    options = parser.add_argument_group("Options")
-    options.add_argument("-h", "--help", action="help", help="Show this help message and exit")
 
     return parser
