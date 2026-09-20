@@ -1,4 +1,5 @@
 import argparse
+from importlib.metadata import version
 
 class SubcommandHelpFormatter(argparse.RawDescriptionHelpFormatter):
     def _format_action(self, action):
@@ -19,6 +20,13 @@ def build_parser() -> argparse.ArgumentParser:
         formatter_class=SubcommandHelpFormatter,
         add_help=False,
     )
+
+    parser.add_argument(
+        "-v", "--version",
+        action="version",
+        version=f"kohai {version('kohai')}",
+    )
+
     subparsers = parser.add_subparsers(dest="command", title="Commands", metavar="")
     
     help = subparsers.add_parser("help", help="Show this help message")
