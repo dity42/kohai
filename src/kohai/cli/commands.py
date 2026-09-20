@@ -243,6 +243,29 @@ def run_bmark_watch(index: str | None, quality=None) -> None:
         original_title=entry.get("original_title"),
     )
 
+def run_bmark_info(index: str | None) -> None:
+    bookmarks = load_bookmarks()
+    if not bookmarks:
+        print("No bookmarks yet.")
+        return
+
+    if index is None:
+        idx = pick_bookmark(bookmarks)
+        if idx is None:
+            return
+    else:
+        try:
+            n = int(index)
+        except ValueError:
+            print(f"Invalid index: {index}")
+            return
+        if n < 1 or n > len(bookmarks):
+            print(f"No bookmark number {n} (bookmarks has {len(bookmarks)} entries).")
+            return
+        idx = n - 1
+
+    run_info(bookmarks[idx]["title"], skip_pick=True)
+
 def run_bmark(args) -> None:
     action = getattr(args, "bmark_action", None)
     if action == "add":
@@ -255,6 +278,10 @@ def run_bmark(args) -> None:
 
     if action == "watch":
         run_bmark_watch(args.index, args.quality)
+        return
+
+    if action == "info":
+        run_bmark_info(args.index)
         return
 
     run_bmark_list()
@@ -292,7 +319,7 @@ def print_info(info: dict) -> None:
         print()
         print(text)
 
-def run_info(query: str | None) -> None:
+def run_info(query: str | None, skip_pick: bool = False) -> None:
     if not query:
         query = input("Type anime name: ").strip()
         if not query:
@@ -303,9 +330,13 @@ def run_info(query: str | None) -> None:
         print("Nothing found.")
         return
 
-    anime = pick_anime(items)
-    if not anime:
-        return
+    if skip_pick:
+        exact = [i for i in items if i.get("title") == query]
+        anime = exact[0] if exact else items[0]
+    else:
+        anime = pick_anime(items)
+        if not anime:
+            return
 
     info = AnimegoParser().anime_info(url=anime["link"])
     if not info:
