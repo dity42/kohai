@@ -1,7 +1,7 @@
 [project]
 name = "kohai"
 version = "0.18.0"
-description = "Interactive anime browser and player for the terminal"
+description = "CLI tool for searching, picking, and watching anime via animego and kodik."
 readme = "README.md"
 authors = [
     { name = "dity", email = "275731998+dity42@users.noreply.github.com" }
