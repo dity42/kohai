@@ -7,7 +7,15 @@ from kohai.app.history import add_to_history
 
 fzf = FzfPrompt()
 
+# All pick_* helpers return None on cancel (Esc) and skip fzf
+# automatically when there is only one option.
+
 def get_item_source(item: dict) -> tuple[str, str] | None:
+    """Return (id, source_type) for kodik.
+
+    Priority: shikimori -> kinopoisk -> imdb -> worldart.
+    Kodik accepts any of these, but shikimori is the most precise.
+    """
     id_sources = [
         ('shikimori_id', 'shikimori'),
         ('kinopoisk_id', 'kinopoisk'),
@@ -21,6 +29,7 @@ def get_item_source(item: dict) -> tuple[str, str] | None:
     return None
 
 def resolve_episode_links(item: dict, episode: int, translation_id: str):
+    """Fetch direct episode links from kodik."""
     source = get_item_source(item)
     if source is None:
         return None
@@ -33,6 +42,11 @@ def resolve_episode_links(item: dict, episode: int, translation_id: str):
     )
 
 def normalize_ids(item: dict) -> dict:
+    """Normalize ids to the format kodik expects.
+
+    imdb comes as 'tt1234567' — kodik wants '1234567'.
+    worldart_id is extracted from worldart_link (not present in item).
+    """
     imdb = item.get('imdb_id')
     if imdb and isinstance(imdb, str) and imdb.startswith('tt'):
         item['imdb_id'] = imdb[2:]
@@ -97,7 +111,7 @@ def pick_episode(series_range):
         return episodes[0]
 
     display = [str(e) for e in episodes]
-    picked = fzf.prompt(episodes)
+    picked = fzf.prompt(display)
     if not picked:
         return None
     return int(picked[0])
@@ -110,7 +124,17 @@ def pick_quality():
     return picked[0]
 
 def aniselector(atitle: str, quality: str | None = None, original_title: str | None = None):
+    """Resolve a title and launch mpv.
+
+    If original_title is provided (e.g. from bmark watch), skip animego
+    search and go straight to kodik. Otherwise, search animego and let
+    the user pick the exact title.
+
+    If quality is provided (e.g. from the -q flag), skip the quality
+    prompt.
+    """
     if original_title: 
+        # caller already knows the exact title (e.g. from bmark watch)
         query = original_title
         title = atitle
     else:
@@ -166,6 +190,7 @@ def aniselector(atitle: str, quality: str | None = None, original_title: str | N
         print("mpv not found.")
         return
 
+    # record to history only after mpv launched successfully
     add_to_history(
         title=title,
         episode=episode,
