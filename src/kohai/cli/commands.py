@@ -69,6 +69,12 @@ def pick_history_entry(entries):
     return entries[display.index(picked[0])]
 
 def run_history_watch(index: str | None) -> None:
+    """Replay an entry from history.
+
+    index = None  -> fzf picker
+    index = "last" -> most recent entry
+    index = N     -> Nth from the end (1 = most recent)
+    """
     entries = get_all()
     if not entries:
         print("No history yet.")
@@ -142,6 +148,7 @@ def run_schedule_updates(entries) -> None:
         suffix = f" ({translation})" if translation else ""
 
         if episode and episode != "None":
+            # animego returns the string "None" for some entries
             ep_str = f" — эп. {episode}"
         else:
             ep_str = ""
@@ -150,6 +157,7 @@ def run_schedule_updates(entries) -> None:
 
 def run_schedule(args):
     if args.updates:
+        # -u takes precedence over -t
         entries = get_updates()
         run_schedule_updates(entries)
         return
@@ -175,6 +183,10 @@ def run_bmark_list() -> None:
         print(f"{i}. {b['title']}")
 
 def run_bmark_add(query: str) -> None:
+    """Search animego and save the exact title as a bookmark.
+
+    Skips if the title is already bookmarked.
+    """
     items = anisearch(query)
     if not items:
         print("Nothing found.")
@@ -193,6 +205,7 @@ def run_bmark_add(query: str) -> None:
     print(f"Added: {title}")
 
 def pick_bookmark(bookmarks):
+    """Return the 0-based index of the picked bookmark, or None on cancel."""
     if not bookmarks:
         return None 
     if len(bookmarks) == 1:
@@ -300,6 +313,13 @@ def run_bmark(args) -> None:
     run_bmark_list()
 
 def print_info(info: dict) -> None:
+    """Render anime info with rich tables.
+
+    Table layout:
+      - title + score (top)
+      - two tables side by side: general | staff
+      - genres + description (bottom)
+    """
     title_table = Table(show_header=False, box=box.ROUNDED, padding=(0, 2))
     titles = [t.strip() for t in (info.get("title") or "").split("\n") if t.strip()]
     if len(titles) == 1:
@@ -321,6 +341,7 @@ def print_info(info: dict) -> None:
     duration = info.get("duration")
 
     if type_ == "Фильм" or episodes == "1":
+        # single-episode titles (movies, some ONA) show Duration instead of Episodes
         table1.add_row("[bold cyan]Duration[/bold cyan]", duration or "—")
     else:
         if episodes and duration:
@@ -357,6 +378,12 @@ def print_info(info: dict) -> None:
         console.print(desc_table)
 
 def run_info(query: str | None, skip_pick: bool = False) -> None:
+    """Show anime info.
+
+    If skip_pick is True (e.g. from bmark info), the query is assumed
+    to be an exact title — try exact match in animego results, fall
+    back to the first one, and skip the fzf picker.
+    """
     if not query:
         query = input("Type anime name: ").strip()
         if not query:

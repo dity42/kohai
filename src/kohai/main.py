@@ -13,7 +13,8 @@ def main() -> None:
     
         dispatch(args)
     except KeyboardInterrupt:
-        print()
+        # exit code 130 = 128 + SIGINT, standard for "interrupted by user"
+        print() # newline after ^C so shell prompt doesn't stick
         sys.exit(130)
 
 if __name__ == "__main__":

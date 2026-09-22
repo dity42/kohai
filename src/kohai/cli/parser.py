@@ -2,13 +2,16 @@ import argparse
 from importlib.metadata import version
 
 class SubcommandHelpFormatter(argparse.RawDescriptionHelpFormatter):
+    """Remove the blank line argparse inserts before the subcommand list."""
     def _format_action(self, action):
         parts = super(argparse.RawDescriptionHelpFormatter, self)._format_action(action)
         if action.nargs == argparse.PARSER:
+            # drop the leading empty line before the "commands:" header
             parts = "\n".join(parts.split("\n")[1:])
         return parts
 
 def build_parser() -> argparse.ArgumentParser:
+    """Build the top-level argparse parser with all subcommands."""
     parser = argparse.ArgumentParser(
         prog="kohai",
         usage="kohai [OPTIONS] <COMMAND>",
@@ -27,17 +30,19 @@ def build_parser() -> argparse.ArgumentParser:
     help = subparsers.add_parser("help", help="Show this help message")
 
     search = subparsers.add_parser("search", help="Search and watch anime")
+    # query is optional; if omitted, run_search prompts interactively
     search.add_argument("query", nargs="?", default=None)
     search.add_argument("-q", "--quality", choices=["360", "480", "720"], default=None)
 
     history = subparsers.add_parser("history", help="Show watch history")
-    history.add_argument("-l", "--limit", type=int, default=10, help="Number of entries to show (default: 10")
+    history.add_argument("-l", "--limit", type=int, default=10, help="Number of entries to show (default: 10)")
 
     history_sub = history.add_subparsers(dest="history_action")
     history_sub.add_parser("clear", help="Clear watch history")
 
-    watch = history_sub.add_parser("watch", help="Replay from history")
-    watch.add_argument("index", nargs="?", default=None)
+    history_watch = history_sub.add_parser("watch", help="Replay from history")
+    # index: None -> fzf, "last" -> most recent, N -> Nth from the end
+    history_watch.add_argument("index", nargs="?", default=None)
 
     schedule = subparsers.add_parser("schedule", help="Show anime schedule")
     schedule.add_argument("-t", "--today", action="store_true", help="Show only today's schedule")
@@ -53,9 +58,9 @@ def build_parser() -> argparse.ArgumentParser:
     rm = bmark_sub.add_parser("rm", help="Remove a bookmark")
     rm.add_argument("index", nargs="?", default=None, help="Bookmark number (optional)")
 
-    watch = bmark_sub.add_parser("watch", help="Watch from bookmarks")
-    watch.add_argument("index", nargs="?", default=None, help="Bookmark number (optional)")
-    watch.add_argument("-q", "--quality", choices=["360", "480", "720"], default=None)
+    bmark_watch = bmark_sub.add_parser("watch", help="Watch from bookmarks")
+    bmark_watch.add_argument("index", nargs="?", default=None, help="Bookmark number (optional)")
+    bmark_watch.add_argument("-q", "--quality", choices=["360", "480", "720"], default=None)
 
     bmark_info = bmark_sub.add_parser("info", help="Show info for a bookmark")
     bmark_info.add_argument("index", nargs="?", default=None, help="Bookmark number (optional)")
