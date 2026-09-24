@@ -1,8 +1,7 @@
 import json 
 from datetime import datetime
-from pathlib import Path
 
-HISTORY_FILE = Path.home() / ".local" / "share" / "kohai" / "history.json"
+from kohai.app.storage import HISTORY_FILE
 
 def load_history() -> list[dict]:
     """Load watch history from disk.

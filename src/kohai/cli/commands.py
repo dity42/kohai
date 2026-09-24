@@ -1,22 +1,35 @@
 import subprocess
 
-from anime_parsers_ru import AnimegoParser
-from pyfzf import FzfPrompt
 from rich.console import Console
 from rich.table import Table
 from rich import box
 
-from kohai.app import bookmarks
+from kohai.app.clients import animego
 from kohai.app.aniselector import aniselector, pick_anime
 from kohai.app.api import anisearch
 from kohai.app.history import get_all, get_recent, clear_history
 from kohai.app.schedule import get_schedule, get_today, get_updates
 from kohai.app.bookmarks import load_bookmarks, add_bookmark, is_bookmarked, remove_bookmark
+from kohai.app.picker import pick
+from kohai.app.player import play
 from kohai.cli.format import format_relative_time
 from kohai.cli.parser import build_parser
 
 console = Console()
-fzf = FzfPrompt()
+
+def resolve_index(arg: str | None, items, fmt) -> int | None:
+    if arg is None:
+        picked = pick(list(enumerate(items)), fmt=lambda t: fmt(t[1]))
+        return picked[0] if picked is not None else None
+    try:
+        n = int(arg)
+    except ValueError:
+        print(f"Invalid index: {arg}")
+        return None
+    if n < 1 or n > len(items):
+        print(f"No entry number {n} ({len(items)} available).")
+        return None
+    return n - 1
 
 def run_search(query: str, quality: str | None) -> None:
     if not query:
@@ -54,55 +67,20 @@ def run_history_clear():
     clear_history()
     print("History cleared.")
 
-def pick_history_entry(entries):
-    if not entries:
-        return None 
-    if len(entries) == 1:
-        return entries[0]
-    display = [
-        f"{e['title']} ({e['translation']}) - {format_relative_time(e['watched_at'])}"
-        for e in entries
-    ] 
-    picked = fzf.prompt(display)
-    if not picked:
-        return None
-    return entries[display.index(picked[0])]
-
-def run_history_watch(index: str | None) -> None:
-    """Replay an entry from history.
-
-    index = None  -> fzf picker
-    index = "last" -> most recent entry
-    index = N     -> Nth from the end (1 = most recent)
-    """
+def run_history_watch(index):
     entries = get_all()
     if not entries:
         print("No history yet.")
         return
-
-    if index is None:
-        entry = pick_history_entry(entries)
-    elif index == "last":
+    if index == "last":
         entry = entries[0]
     else:
-        try:
-            n = int(index)
-        except ValueError:
-            print(f"Invalid index: {index}")
+        idx = resolve_index(index, entries,
+            lambda e: f"{e['title']} ({e['translation']}) - {format_relative_time(e['watched_at'])}")
+        if idx is None:
             return
-        if n < 1 or n > len(entries):
-            print(f"No entry number {n} (history has {len(entries)} entries).")
-            return
-        entry = entries[n-1]
-
-    if not entry:
-        return
-
-    url = entry['url']
-    try:
-        subprocess.run(["mpv", url])
-    except FileNotFoundError:
-        print("mpv not found.")
+        entry = entries[idx]
+    play(entry["url"])
 
 def run_history(args):
     action = getattr(args, "history_action", None)
@@ -204,39 +182,14 @@ def run_bmark_add(query: str) -> None:
     add_bookmark(title, anime.get("original_title"))
     print(f"Added: {title}")
 
-def pick_bookmark(bookmarks):
-    """Return the 0-based index of the picked bookmark, or None on cancel."""
-    if not bookmarks:
-        return None 
-    if len(bookmarks) == 1:
-        return 0
-    display = [f"{b['title']}" for b in bookmarks]
-    picked = fzf.prompt(display)
-    if not picked:
-        return None 
-    return display.index(picked[0])
-
 def run_bmark_rm(index: str | None) -> None:
     bookmarks = load_bookmarks()
     if not bookmarks:
         print("No bookmarks yet.")
         return 
-
-    if index is None:
-        idx = pick_bookmark(bookmarks)
-        if idx is None:
-            return
-    else:
-        try:
-            n = int(index)
-        except ValueError:
-            print(f"Invalid index: {index}")
-            return 
-        if n < 1 or n > len(bookmarks):
-            print(f"No bookmark number {n} (bookmarks has {len(bookmarks)} entries).")
-            return
-        idx = n - 1
-
+    idx = resolve_index(index, bookmarks, lambda b: b["title"])
+    if idx is None:
+        return
     removed = bookmarks[idx]["title"]
     remove_bookmark(idx)
     print(f"Removed: {removed}")
@@ -246,22 +199,9 @@ def run_bmark_watch(index: str | None, quality=None) -> None:
     if not bookmarks:
         print("No bookmarks yet.")
         return
-
-    if index is None:
-        idx = pick_bookmark(bookmarks)
-        if idx is None:
-            return
-    else:
-        try:
-            n = int(index)
-        except ValueError:
-            print(f"Invalid index: {index}")
-            return
-        if n < 1 or n > len(bookmarks):
-            print(f"No bookmark number {n} (bookmarks has {len(bookmarks)} entries).")
-            return
-        idx = n - 1
-
+    idx = resolve_index(index, bookmarks, lambda b: b["title"])
+    if idx is None:
+        return
     entry = bookmarks[idx]
     aniselector(
         entry["title"],
@@ -274,22 +214,9 @@ def run_bmark_info(index: str | None) -> None:
     if not bookmarks:
         print("No bookmarks yet.")
         return
-
-    if index is None:
-        idx = pick_bookmark(bookmarks)
-        if idx is None:
-            return
-    else:
-        try:
-            n = int(index)
-        except ValueError:
-            print(f"Invalid index: {index}")
-            return
-        if n < 1 or n > len(bookmarks):
-            print(f"No bookmark number {n} (bookmarks has {len(bookmarks)} entries).")
-            return
-        idx = n - 1
-
+    idx = resolve_index(index, bookmarks, lambda b: b["title"])
+    if idx is None:
+        return
     run_info(bookmarks[idx]["title"], skip_pick=True)
 
 def run_bmark(args) -> None:
@@ -402,7 +329,7 @@ def run_info(query: str | None, skip_pick: bool = False) -> None:
         if not anime:
             return
 
-    info = AnimegoParser().anime_info(url=anime["link"])
+    info = animego.anime_info(url=anime["link"])
     if not info:
         print("No info available.")
         return

@@ -1,5 +1,5 @@
-from anime_parsers_ru import AnimegoParser
+from kohai.app.clients import animego
 
 def anisearch(atitle: str):
     """Search animego, return list of raw results (dicts)."""
-    return AnimegoParser().search(atitle)
+    return animego.search(atitle)

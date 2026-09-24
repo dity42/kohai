@@ -1,6 +1,6 @@
 [project]
 name = "kohai"
-version = "0.18.0"
+version = "0.19.0"
 description = "CLI tool for searching, picking, and watching anime via animego and kodik."
 readme = "README.md"
 authors = [
@@ -9,6 +9,7 @@ authors = [
 requires-python = ">=3.12"
 dependencies = [
     "anime-parsers-ru>=1.18.0",
+    "platformdirs>=4.11.12",
     "pyfzf>=0.3.1",
     "rich>=15.0.0",
 ]

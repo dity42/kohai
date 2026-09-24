@@ -1,5 +1,5 @@
 import re
-from anime_parsers_ru import AnimegoParser
+from kohai.app.clients import animego
 
 def _extract_total(raw: str) -> int | None:
     """Extract total episode count from a '... (из N)' string."""
@@ -34,7 +34,7 @@ def _normalize_entry(e: dict) -> dict:
 
 def get_schedule() -> dict:
     """Fetch the weekly schedule and normalize each entry."""
-    data = AnimegoParser().get_schedule()
+    data = animego.get_schedule()
     for day, entries in data["schedule"].items():
         for e in entries:
             _normalize_entry(e)
@@ -54,4 +54,4 @@ def get_today() -> tuple[str, list[dict]]:
 
 def get_updates() -> list[dict]:
     """Fetch recent translation updates (new dubs/subs)."""
-    return AnimegoParser().get_anime_updates()
+    return animego.get_anime_updates()

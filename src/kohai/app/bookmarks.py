@@ -1,7 +1,6 @@
 import json 
-from pathlib import Path
 
-BOOKMARKS_FILE = Path.home() / ".local" / "share" / "kohai" / "bookmarks.json"
+from kohai.app.storage import BOOKMARKS_FILE
 
 def load_bookmarks() -> list[dict]:
     """Load bookmarks from disk.
