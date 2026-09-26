@@ -70,5 +70,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     season = subparsers.add_parser("season", help="Show anime from the current season")
     season.add_argument("-l", "--limit", type=int, default=None, help="Number of entries to show")
+    
+    season_sub = season.add_subparsers(dest="season_action")
+    season_watch = season_sub.add_parser("watch", help="Watch an anime from the current season")
+    season_watch.add_argument("index", nargs="?", default=None, help="Number in the season list (optional, fzf if omitted)")
 
     return parser

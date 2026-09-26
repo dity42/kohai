@@ -337,16 +337,21 @@ def run_info(query: str | None, skip_pick: bool = False) -> None:
 
     print_info(info)
 
-def run_season(limit: int | None) -> None:
+def _season_entries(limit: int | None) -> list[dict] | None:
     entries = get_current_season()
     if not entries:
         print("Nothing found.")
-        return
+        return None
     if limit is not None and limit <= 0:
         print("Limit must be greater than 0.")
+        return None
+    return entries[:limit] if limit else entries
+
+def run_season_list(limit: int | None) -> None:
+    entries = _season_entries(limit)
+    if not entries:
         return
-    shown = entries[:limit] if limit else entries
-    for i, a in enumerate(shown, start=1):
+    for i, a in enumerate(entries, start=1):
         title = a.get("title") or "Unknown"
         other = a.get("other_title")
         score = a.get("score")
@@ -357,6 +362,23 @@ def run_season(limit: int | None) -> None:
             line += f" — {score}"
         print(line)
 
+def run_season_watch(index: str | None) -> None:
+    entries = get_current_season()
+    if not entries:
+        print("Nothing found.")
+        return
+    idx = resolve_index(index, entries, fmt=lambda a: f"{a.get('title')} ({a.get('other_title')}) — {a.get('score')}")
+    if idx is None:
+        return
+    entry = entries[idx]
+    aniselector(entry["title"], original_title=entry.get("other_title"))
+
+def run_season(args) -> None:
+    action = getattr(args, "season_action", None)
+    if action == "watch":
+        run_season_watch(args.index)
+        return
+    run_season_list(args.limit)
 
 def dispatch(args) -> None:
     if args.command == "help":
@@ -374,6 +396,6 @@ def dispatch(args) -> None:
     elif args.command == "info":
         run_info(args.query)
     elif args.command == "season":
-        run_season(args.limit)
+        run_season(args)
     else: 
         print(f"Unknown command: {args.command}")
