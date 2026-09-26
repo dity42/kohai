@@ -10,6 +10,7 @@ from kohai.app.api import anisearch
 from kohai.app.history import get_all, get_recent, clear_history
 from kohai.app.schedule import get_schedule, get_today, get_updates
 from kohai.app.bookmarks import load_bookmarks, add_bookmark, is_bookmarked, remove_bookmark
+from kohai.app.season import get_current_season
 from kohai.app.picker import pick
 from kohai.app.player import play
 from kohai.cli.format import format_relative_time
@@ -336,6 +337,22 @@ def run_info(query: str | None, skip_pick: bool = False) -> None:
 
     print_info(info)
 
+def run_season() -> None:
+    entries = get_current_season()
+    if not entries:
+        print("Nothing found.")
+        return
+    for i, a in enumerate(entries, start=1):
+        title = a.get("title") or "Unknown"
+        other = a.get("other_title")
+        score = a.get("score")
+        line = f"{i}. {title}"
+        if other:
+            line += f" ({other})"
+        if score:
+            line += f" — {score}"
+        print(line)
+
 
 def dispatch(args) -> None:
     if args.command == "help":
@@ -352,5 +369,7 @@ def dispatch(args) -> None:
         run_bmark(args)
     elif args.command == "info":
         run_info(args.query)
+    elif args.command == "season":
+        run_season()
     else: 
         print(f"Unknown command: {args.command}")
