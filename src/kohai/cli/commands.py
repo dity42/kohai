@@ -6,7 +6,7 @@ from rich import box
 
 from kohai.app.clients import animego
 from kohai.app.aniselector import aniselector, pick_anime
-from kohai.app.api import anisearch
+from kohai.app.anisearch import anisearch
 from kohai.app.history import get_all, get_recent, clear_history
 from kohai.app.schedule import get_schedule, get_today, get_updates
 from kohai.app.bookmarks import load_bookmarks, add_bookmark, is_bookmarked, remove_bookmark

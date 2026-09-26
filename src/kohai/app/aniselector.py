@@ -1,5 +1,5 @@
 from kohai.app.clients import kodik
-from kohai.app.api import anisearch
+from kohai.app.anisearch import anisearch
 from kohai.app.history import add_to_history
 from kohai.app.picker import pick
 from kohai.app.player import play
