@@ -337,12 +337,16 @@ def run_info(query: str | None, skip_pick: bool = False) -> None:
 
     print_info(info)
 
-def run_season() -> None:
+def run_season(limit: int | None) -> None:
     entries = get_current_season()
     if not entries:
         print("Nothing found.")
         return
-    for i, a in enumerate(entries, start=1):
+    if limit is not None and limit <= 0:
+        print("Limit must be greater than 0.")
+        return
+    shown = entries[:limit] if limit else entries
+    for i, a in enumerate(shown, start=1):
         title = a.get("title") or "Unknown"
         other = a.get("other_title")
         score = a.get("score")
@@ -370,6 +374,6 @@ def dispatch(args) -> None:
     elif args.command == "info":
         run_info(args.query)
     elif args.command == "season":
-        run_season()
+        run_season(args.limit)
     else: 
         print(f"Unknown command: {args.command}")
