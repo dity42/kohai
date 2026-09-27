@@ -32,12 +32,12 @@ def resolve_index(arg: str | None, items, fmt) -> int | None:
         return None
     return n - 1
 
-def run_search(query: str, quality: str | None) -> None:
+def run_search(query: str, quality: str | None, episode: int | None = None) -> None:
     if not query:
         query = input("Type anime name: ").strip()
         if not query:
             return
-    aniselector(query, quality)
+    aniselector(query, quality=quality, episode=episode)
 
 def run_history_list(limit: int):
     if limit <= 0:
@@ -195,7 +195,7 @@ def run_bmark_rm(index: str | None) -> None:
     remove_bookmark(idx)
     print(f"Removed: {removed}")
 
-def run_bmark_watch(index: str | None, quality=None) -> None:
+def run_bmark_watch(index: str | None, quality=None, episode: int | None = None) -> None:
     bookmarks = load_bookmarks()
     if not bookmarks:
         print("No bookmarks yet.")
@@ -208,6 +208,7 @@ def run_bmark_watch(index: str | None, quality=None) -> None:
         entry["title"],
         quality=quality,
         original_title=entry.get("original_title"),
+        episode=episode,
     )
 
 def run_bmark_info(index: str | None) -> None:
@@ -231,7 +232,7 @@ def run_bmark(args) -> None:
         return
 
     if action == "watch":
-        run_bmark_watch(args.index, args.quality)
+        run_bmark_watch(args.index, args.quality, args.episode)
         return
 
     if action == "info":
@@ -362,7 +363,7 @@ def run_season_list(limit: int | None) -> None:
             line += f" — {score}"
         print(line)
 
-def run_season_watch(index: str | None, quality: str | None = None) -> None:
+def run_season_watch(index: str | None, quality: str | None = None, episode: int | None = None) -> None:
     entries = get_current_season()
     if not entries:
         print("Nothing found.")
@@ -371,12 +372,17 @@ def run_season_watch(index: str | None, quality: str | None = None) -> None:
     if idx is None:
         return
     entry = entries[idx]
-    aniselector(entry["title"], quality=quality, original_title=entry.get("other_title"))
+    aniselector(
+        entry["title"],
+        quality=quality,
+        original_title=entry.get("other_title"),
+        episode=episode,
+    )
 
 def run_season(args) -> None:
     action = getattr(args, "season_action", None)
     if action == "watch":
-        run_season_watch(args.index, args.quality)
+        run_season_watch(args.index, args.quality, args.episode)
         return
     run_season_list(args.limit)
 
@@ -386,7 +392,7 @@ def dispatch(args) -> None:
         return
 
     if args.command == "search":
-        run_search(args.query, args.quality)
+        run_search(args.query, args.quality, args.episode)
     elif args.command == "history":
         run_history(args)
     elif args.command == "schedule":

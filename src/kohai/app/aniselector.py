@@ -55,7 +55,7 @@ def normalize_ids(item: dict) -> dict:
 def pick_anime(items):
     return pick(items, lambda i: f"{i.get('title', 'Unknown')} - {i.get('original_title', '')}".strip(" -"))
 
-def aniselector(atitle: str, quality: str | None = None, original_title: str | None = None):
+def aniselector(atitle: str, quality: str | None = None, original_title: str | None = None, episode: int | None = None):
     """Resolve a title and launch mpv.
 
     If original_title is provided (e.g. from bmark watch), skip animego
@@ -97,10 +97,21 @@ def aniselector(atitle: str, quality: str | None = None, original_title: str | N
 
     series_range = translation.get('series_range')
     if not series_range:
+        if episode is not None:
+            print("No episode range available for this translation.")
         return
-    episode = pick(list(range(series_range[0], series_range[1] + 1)), fmt=str)
     if episode is None:
-        return
+        episode = pick(list(range(series_range[0], series_range[1] + 1)), fmt=str)
+        if episode is None:
+            return
+    else:
+        lo, hi = series_range
+        if lo == hi:
+            print(f"Episode {episode} is out of range ({hi}).")
+            return
+        if not (lo <= episode <= hi):
+            print(f"Episode {episode} is out of range ({lo}-{hi}).")
+            return
 
     if quality is None:
         quality = pick(["360", "480", "720"])

@@ -33,6 +33,7 @@ def build_parser() -> argparse.ArgumentParser:
     # query is optional; if omitted, run_search prompts interactively
     search.add_argument("query", nargs="?", default=None)
     search.add_argument("-q", "--quality", choices=["360", "480", "720"], default=None)
+    search.add_argument("-e", "--episode", type=int, default=None)
 
     history = subparsers.add_parser("history", help="Show watch history")
     history.add_argument("-l", "--limit", type=int, default=10, help="Number of entries to show (default: 10)")
@@ -61,6 +62,7 @@ def build_parser() -> argparse.ArgumentParser:
     bmark_watch = bmark_sub.add_parser("watch", help="Watch from bookmarks")
     bmark_watch.add_argument("index", nargs="?", default=None, help="Bookmark number (optional)")
     bmark_watch.add_argument("-q", "--quality", choices=["360", "480", "720"], default=None)
+    bmark_watch.add_argument("-e", "--episode", type=int, default=None)
 
     bmark_info = bmark_sub.add_parser("info", help="Show info for a bookmark")
     bmark_info.add_argument("index", nargs="?", default=None, help="Bookmark number (optional)")
@@ -75,5 +77,6 @@ def build_parser() -> argparse.ArgumentParser:
     season_watch = season_sub.add_parser("watch", help="Watch an anime from the current season")
     season_watch.add_argument("index", nargs="?", default=None, help="Number in the season list (optional, fzf if omitted)")
     season_watch.add_argument("-q", "--quality", choices=["360", "480", "720"], default=None)
+    season_watch.add_argument("-e", "--episode", type=int, default=None)
 
     return parser
