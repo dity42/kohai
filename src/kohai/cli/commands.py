@@ -362,7 +362,7 @@ def run_season_list(limit: int | None) -> None:
             line += f" — {score}"
         print(line)
 
-def run_season_watch(index: str | None, quality: str | None = None) -> None:
+def run_season_watch(index: str | None) -> None:
     entries = get_current_season()
     if not entries:
         print("Nothing found.")
@@ -371,12 +371,12 @@ def run_season_watch(index: str | None, quality: str | None = None) -> None:
     if idx is None:
         return
     entry = entries[idx]
-    aniselector(entry["title"], quality=quality, original_title=entry.get("other_title"))
+    aniselector(entry["title"], original_title=entry.get("other_title"))
 
 def run_season(args) -> None:
     action = getattr(args, "season_action", None)
     if action == "watch":
-        run_season_watch(args.index, args.quality)
+        run_season_watch(args.index)
         return
     run_season_list(args.limit)
 
