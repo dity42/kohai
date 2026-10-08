@@ -1,4 +1,5 @@
-from kohai.app.clients import kodik
+from kohai.app.clients import get_kodik
+from kohai.exceptions import KohaiError
 from kohai.app.anisearch import anisearch
 from kohai.app.history import add_to_history
 from kohai.app.picker import pick
@@ -28,7 +29,7 @@ def resolve_episode_links(item: dict, episode: int, translation_id: str):
     if source is None:
         return None
     id_value, id_type = source
-    return kodik.get_link(
+    return get_kodik().get_link(
         id=id_value, 
         id_type=id_type,
         seria_num=int(episode),
@@ -70,24 +71,22 @@ def aniselector(atitle: str, quality: str | None = None, original_title: str | N
     else:
         items = anisearch(atitle)
         if not items: 
-            print("Nothing found.")
-            return
+            raise KohaiError("Nothing found.")
         anime = pick_anime(items)
         if not anime:
             return
         query = anime.get('original_title') or anime['title']
         title = anime.get('title') or query
 
-    candidates = kodik.search(query)
+    candidates = get_kodik().search(query)
     if not candidates:
-        print("Nothing found in kodik.")
-        return
+        raise KohaiError("Nothing found in kodik.")
     item = pick(candidates, lambda c: f"{c.get('title', 'Unknown')} ({c.get('year', 'N/A')})")
     if not item:
         return
 
     normalize_ids(item)
-    info = kodik.get_info_from_embed("https:" + item['link'])
+    info = get_kodik().get_info_from_embed("https:" + item['link'])
     if not info:
         return
 
@@ -98,7 +97,7 @@ def aniselector(atitle: str, quality: str | None = None, original_title: str | N
     series_range = translation.get('series_range')
     if not series_range:
         if episode is not None:
-            print("No episode range available for this translation.")
+            raise KohaiError("No episode range available for this translation.")
         return
     if episode is None:
         episode = pick(list(range(series_range[0], series_range[1] + 1)), fmt=str)
@@ -106,12 +105,8 @@ def aniselector(atitle: str, quality: str | None = None, original_title: str | N
             return
     else:
         lo, hi = series_range
-        if lo == hi:
-            print(f"Episode {episode} is out of range ({hi}).")
-            return
         if not (lo <= episode <= hi):
-            print(f"Episode {episode} is out of range ({lo}-{hi}).")
-            return
+            raise KohaiError(f"Episode {episode} is out of range ({lo}-{hi}).")
 
     if quality is None:
         quality = pick(["360", "480", "720"])
@@ -120,10 +115,9 @@ def aniselector(atitle: str, quality: str | None = None, original_title: str | N
 
     link = resolve_episode_links(item, episode, translation['id'])
     if not link:
-        print("No link.")
-        return
+        raise KohaiError("No link.")
 
     url = 'https:' + link[0] + quality + '.mp4'
-    if play(url):
-        add_to_history(title=title, episode=episode, translation=translation.get("name"),
+    play(url)
+    add_to_history(title=title, episode=episode, translation=translation.get("name"),
                        translation_id=translation.get("id"), quality=quality, url=url)

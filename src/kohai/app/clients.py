@@ -1,5 +1,12 @@
+from functools import lru_cache
+
 from anime_parsers_ru import AnimegoParser, KodikParser
 from kohai.app.token import KodikToken
 
-animego = AnimegoParser()
-kodik = KodikParser(token=KodikToken.get(), validate_token=False)
+@lru_cache()
+def get_animego() -> AnimegoParser:
+    return AnimegoParser()
+
+@lru_cache()
+def get_kodik() -> KodikParser:
+    return KodikParser(token=KodikToken.get(), validate_token=False)

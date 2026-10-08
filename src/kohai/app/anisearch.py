@@ -1,5 +1,5 @@
-from kohai.app.clients import animego
+from kohai.app.clients import get_animego
 
 def anisearch(atitle: str):
     """Search animego, return list of raw results (dicts)."""
-    return animego.search(atitle)
+    return get_animego().search(atitle)

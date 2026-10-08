@@ -2,7 +2,8 @@ from rich.console import Console
 from rich.table import Table
 from rich import box
 
-from kohai.app.clients import animego
+from kohai.exceptions import KohaiError
+from kohai.app.clients import get_animego
 from kohai.app.aniselector import aniselector, pick_anime
 from kohai.app.anisearch import anisearch
 from kohai.app.history import get_all, get_recent, clear_history
@@ -23,11 +24,9 @@ def resolve_index(arg: str | None, items, fmt) -> int | None:
     try:
         n = int(arg)
     except ValueError:
-        print(f"Invalid index: {arg}")
-        return None
+        raise KohaiError(f"Invalid index: {arg}") from None
     if n < 1 or n > len(items):
-        print(f"No entry number {n} ({len(items)} available).")
-        return None
+        raise KohaiError(f"No entry number {n} ({len(items)} available).")
     return n - 1
 
 def run_search(query: str, quality: str | None, episode: int | None = None) -> None:
@@ -39,8 +38,7 @@ def run_search(query: str, quality: str | None, episode: int | None = None) -> N
 
 def run_history_list(limit: int):
     if limit <= 0:
-        print("Limit must be greater than 0.")
-        return
+        raise KohaiError("Limit must be greater than 0.")
     
     entries = get_recent(limit)
     if not entries:
@@ -69,8 +67,7 @@ def run_history_clear():
 def run_history_watch(index):
     entries = get_all()
     if not entries:
-        print("No history yet.")
-        return
+        raise KohaiError("No history yet.")
     if index == "last":
         entry = entries[0]
     else:
@@ -166,8 +163,7 @@ def run_bmark_add(query: str) -> None:
     """
     items = anisearch(query)
     if not items:
-        print("Nothing found.")
-        return
+        raise KohaiError("Nothing found.")
 
     anime = pick_anime(items)
     if not anime:
@@ -184,8 +180,7 @@ def run_bmark_add(query: str) -> None:
 def run_bmark_rm(index: str | None) -> None:
     bookmarks = load_bookmarks()
     if not bookmarks:
-        print("No bookmarks yet.")
-        return 
+        raise KohaiError("No bookmarks yet.")
     idx = resolve_index(index, bookmarks, lambda b: b["title"])
     if idx is None:
         return
@@ -196,8 +191,7 @@ def run_bmark_rm(index: str | None) -> None:
 def run_bmark_watch(index: str | None, quality=None, episode: int | None = None) -> None:
     bookmarks = load_bookmarks()
     if not bookmarks:
-        print("No bookmarks yet.")
-        return
+        raise KohaiError("No bookmarks yet.")
     idx = resolve_index(index, bookmarks, lambda b: b["title"])
     if idx is None:
         return
@@ -212,8 +206,7 @@ def run_bmark_watch(index: str | None, quality=None, episode: int | None = None)
 def run_bmark_info(index: str | None) -> None:
     bookmarks = load_bookmarks()
     if not bookmarks:
-        print("No bookmarks yet.")
-        return
+        raise KohaiError("No bookmarks yet.")
     idx = resolve_index(index, bookmarks, lambda b: b["title"])
     if idx is None:
         return
@@ -318,8 +311,7 @@ def run_info(query: str | None, skip_pick: bool = False) -> None:
 
     items = anisearch(query)
     if not items:
-        print("Nothing found.")
-        return
+        raise KohaiError("Nothing found.")
 
     if skip_pick:
         exact = [i for i in items if i.get("title") == query]
@@ -329,21 +321,18 @@ def run_info(query: str | None, skip_pick: bool = False) -> None:
         if not anime:
             return
 
-    info = animego.anime_info(url=anime["link"])
+    info = get_animego().anime_info(url=anime["link"])
     if not info:
-        print("No info available.")
-        return
+        raise KohaiError("No info available.")
 
     print_info(info)
 
 def _season_entries(limit: int | None) -> list[dict] | None:
     entries = get_current_season()
     if not entries:
-        print("Nothing found.")
-        return None
+        raise KohaiError("Nothing found.")
     if limit is not None and limit <= 0:
-        print("Limit must be greater than 0.")
-        return None
+        raise KohaiError("Limit must be greater than 0.")
     return entries[:limit] if limit else entries
 
 def run_season_list(limit: int | None) -> None:
@@ -364,8 +353,7 @@ def run_season_list(limit: int | None) -> None:
 def run_season_watch(index: str | None, quality: str | None = None, episode: int | None = None) -> None:
     entries = get_current_season()
     if not entries:
-        print("Nothing found.")
-        return
+        raise KohaiError("Nothing found.")
     idx = resolve_index(index, entries, fmt=lambda a: f"{a.get('title')} ({a.get('other_title')}) — {a.get('score')}")
     if idx is None:
         return
@@ -402,4 +390,4 @@ def dispatch(args) -> None:
     elif args.command == "season":
         run_season(args)
     else: 
-        print(f"Unknown command: {args.command}")
+        raise KohaiError(f"Unknown command: {args.command}")

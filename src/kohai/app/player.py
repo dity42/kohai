@@ -1,9 +1,8 @@
 import subprocess
+from kohai.exceptions import KohaiError
 
-def play(url: str, args: tuple[str, ...] = ("--save-position-on-quit",)) -> bool:
+def play(url: str, args: tuple[str, ...] = ("--save-position-on-quit",)) -> None:
     try:
         subprocess.run(["mpv", *args, url])
-        return True
     except FileNotFoundError:
-        print("mpv not found.")
-        return False
+        raise KohaiError("mpv not found.") from None

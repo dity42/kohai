@@ -148,6 +148,7 @@ dependencies = [
     { name = "anime-parsers-ru" },
     { name = "platformdirs" },
     { name = "pyfzf" },
+    { name = "requests" },
     { name = "rich" },
 ]
 
@@ -156,6 +157,7 @@ requires-dist = [
     { name = "anime-parsers-ru", specifier = ">=1.18.0" },
     { name = "platformdirs", specifier = ">=4.11.12" },
     { name = "pyfzf", specifier = ">=0.3.1" },
+    { name = "requests", specifier = ">=2.34.2" },
     { name = "rich", specifier = ">=15.0.0" },
 ]
 

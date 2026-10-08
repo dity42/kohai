@@ -1,7 +1,7 @@
 import json 
 from datetime import datetime
 
-from kohai.app.storage import HISTORY_FILE
+from kohai.app.storage import HISTORY_FILE, atomic_write_text
 
 def load_history() -> list[dict]:
     """Load watch history from disk.
@@ -20,9 +20,7 @@ def load_history() -> list[dict]:
 
 def save_history(history: list[dict]) -> None:
     """Persist history to disk, creating parent dirs if needed."""
-    HISTORY_FILE.parent.mkdir(parents=True, exist_ok=True)
-    with HISTORY_FILE.open("w", encoding="utf-8") as f:
-        json.dump(history, f, ensure_ascii=False, indent=2)
+    atomic_write_text(HISTORY_FILE, json.dumps(history, ensure_ascii=False, indent=2))
 
 def add_to_history(title, episode, translation, translation_id, quality, url):
     """Append a watch event and save"""

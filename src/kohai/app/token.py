@@ -2,7 +2,7 @@ from pathlib import Path
 
 from anime_parsers_ru import KodikParser
 
-from kohai.app.storage import DATA_DIR
+from kohai.app.storage import DATA_DIR, atomic_write_text
 
 class KodikToken:
     FILE: Path = DATA_DIR / "kodik_token"
@@ -25,5 +25,4 @@ class KodikToken:
 
     @classmethod
     def save(cls, token: str) -> None:
-        cls.FILE.parent.mkdir(parents=True, exist_ok=True)
-        cls.FILE.write_text(token)
+        atomic_write_text(cls.FILE, token)
