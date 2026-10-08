@@ -14,7 +14,7 @@ def build_parser() -> argparse.ArgumentParser:
     """Build the top-level argparse parser with all subcommands."""
     parser = argparse.ArgumentParser(
         prog="kohai",
-        usage="kohai [OPTIONS] <COMMAND>",
+        usage="kohai [options] <command>",
         description="Search and watch anime from the terminal.",
         formatter_class=SubcommandHelpFormatter,
     )
