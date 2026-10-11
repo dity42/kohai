@@ -67,6 +67,8 @@ def build_parser() -> argparse.ArgumentParser:
     bmark_info = bmark_sub.add_parser("info", help="Show info for a bookmark")
     bmark_info.add_argument("index", nargs="?", default=None, help="Bookmark number (optional)")
 
+    bmark_sub.add_parser("clear", help="Clear bookmarks")
+
     info = subparsers.add_parser("info", help="Show anime info")
     info.add_argument("query", nargs="?", default=None, help="Anime title")
 

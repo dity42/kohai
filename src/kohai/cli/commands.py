@@ -8,7 +8,7 @@ from kohai.app.aniselector import aniselector, pick_anime
 from kohai.app.anisearch import anisearch
 from kohai.app.history import get_all, get_recent, clear_history
 from kohai.app.schedule import get_schedule, get_today, get_updates
-from kohai.app.bookmarks import load_bookmarks, add_bookmark, is_bookmarked, remove_bookmark
+from kohai.app.bookmarks import load_bookmarks, add_bookmark, is_bookmarked, remove_bookmark, save_bookmarks
 from kohai.app.season import get_current_season
 from kohai.app.picker import pick
 from kohai.app.player import play
@@ -212,6 +212,21 @@ def run_bmark_info(index: str | None) -> None:
         return
     run_info(bookmarks[idx]["title"], skip_pick=True)
 
+def run_bmark_clear():
+    bookmarks = load_bookmarks()
+    if not bookmarks:
+        print("No bookmarks yet.")
+        return
+
+    if len(bookmarks) >= 5:
+        answer = input(f"Clear {len(bookmarks)} bmarks? [y/N]: ").strip().lower()
+        if answer not in ("y", "yes"):
+            print("Canceled.")
+            return
+
+    save_bookmarks([])
+    print("Bookmarks cleared.")
+
 def run_bmark(args) -> None:
     action = getattr(args, "bmark_action", None)
     if action == "add":
@@ -228,6 +243,10 @@ def run_bmark(args) -> None:
 
     if action == "info":
         run_bmark_info(args.index)
+        return
+
+    if action == "clear":
+        run_bmark_clear()
         return
 
     run_bmark_list()
