@@ -4,7 +4,7 @@ import requests
 from anime_parsers_ru import errors as api_errors
 
 from kohai.cli.parser import build_parser
-from kohai.cli.commands import dispatch
+from kohai.cli.modules.dispatch import dispatch
 from kohai.exceptions import KohaiError
 
 LIBRARY_ERRORS = (

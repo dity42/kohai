@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.14"
 
 [[package]]
@@ -142,7 +142,7 @@ wheels = [
 
 [[package]]
 name = "kohai"
-version = "0.23.0"
+version = "0.23.1"
 source = { editable = "." }
 dependencies = [
     { name = "anime-parsers-ru" },
