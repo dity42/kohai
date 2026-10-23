@@ -47,7 +47,7 @@ kohai --help
 - [ ] -k/--kodik flag to skip animego and search kodik directly
 - [ ] Test suite (pytest) and CI
 - [ ] Linting and type checking (ruff, mypy)
-- [ ] Split cli/commands.py into per-command modules
+- [X] Split cli/commands.py into per-command modules
 - [ ] Configurable player (mpv args / alternative players)
 - [ ] Tab autocomplete
 
