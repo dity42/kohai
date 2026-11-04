@@ -56,6 +56,13 @@ def normalize_ids(item: dict) -> dict:
 def pick_anime(items):
     return pick(items, lambda i: f"{i.get('title', 'Unknown')} - {i.get('original_title', '')}".strip(" -"))
 
+def pick_kodik_item(query: str) -> dict | None:
+    """Search kodik and let the user pick one candidate."""
+    candidates = get_kodik().search(query)
+    if not candidates:
+        raise KohaiError("Nothing found in kodik.")
+    return pick(candidates, lambda c: f"{c.get('title', 'Unknown')} ({c.get('year', 'N/A')})")
+
 def aniselector(atitle: str, quality: str | None = None, original_title: str | None = None, episode: int | None = None):
     """Resolve a title and launch mpv.
 
@@ -78,10 +85,7 @@ def aniselector(atitle: str, quality: str | None = None, original_title: str | N
         query = anime.get('original_title') or anime['title']
         title = anime.get('title') or query
 
-    candidates = get_kodik().search(query)
-    if not candidates:
-        raise KohaiError("Nothing found in kodik.")
-    item = pick(candidates, lambda c: f"{c.get('title', 'Unknown')} ({c.get('year', 'N/A')})")
+    item = pick_kodik_item(query)
     if not item:
         return
 

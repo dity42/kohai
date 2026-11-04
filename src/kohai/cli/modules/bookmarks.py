@@ -1,6 +1,7 @@
+from kohai.app.picker import pick
 from kohai.exceptions import KohaiError
 from kohai.app.bookmarks import load_bookmarks, add_bookmark, is_bookmarked, remove_bookmark, save_bookmarks
-from kohai.app.aniselector import aniselector, pick_anime
+from kohai.app.aniselector import aniselector, pick_anime, pick_kodik_item
 from kohai.app.anisearch import anisearch
 from .common import resolve_index
 from .info import run_info
@@ -14,25 +15,35 @@ def run_bmark_list() -> None:
     for i, b in enumerate(bookmarks, start=1):
         print(f"{i}. {b['title']}")
 
-def run_bmark_add(query: str) -> None:
+def run_bmark_add(query: str, kodik: bool = False) -> None:
     """Search animego and save the exact title as a bookmark.
 
     Skips if the title is already bookmarked.
     """
-    items = anisearch(query)
-    if not items:
-        raise KohaiError("Nothing found.")
+    if kodik:
+        item = pick_kodik_item(query)
+        if not item:
+            return
+        title = item.get("title")
+        if not title:
+            raise KohaiError("Kodik returned no title.")
 
-    anime = pick_anime(items)
-    if not anime:
-        return
+        original_title = item.get("title") or title
+    else:
+        items = anisearch(query)
+        if not items:
+            raise KohaiError("Nothing found.")
+        anime = pick_anime(items)
+        if not anime:
+            return
+        title = anime["title"]
+        original_title = anime.get("original_title")
 
-    title = anime["title"]
     if is_bookmarked(title):
         print(f"'{title}' is already in bookmarks.")
         return
 
-    add_bookmark(title, anime.get("original_title"))
+    add_bookmark(title, original_title)
     print(f"Added: {title}")
 
 def run_bmark_rm(index: str | None) -> None:
@@ -88,7 +99,7 @@ def run_bmark_clear():
 def run_bmark(args) -> None:
     action = getattr(args, "bmark_action", None)
     if action == "add":
-        run_bmark_add(args.query)
+        run_bmark_add(args.query, kodik=args.kodik)
         return
 
     if action == "rm":
