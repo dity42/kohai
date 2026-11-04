@@ -44,7 +44,8 @@ kohai --help
 ```
 
 ## TODO
-- [ ] -k/--kodik flag to skip animego and search kodik directly
+- [X] -k/--kodik flag to skip animego and search kodik directly
+- [ ] Rewrite 'kohai info'
 - [ ] Test suite (pytest) and CI
 - [ ] Linting and type checking (ruff, mypy)
 - [X] Split cli/commands.py into per-command modules

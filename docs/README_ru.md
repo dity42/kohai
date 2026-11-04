@@ -44,7 +44,8 @@ kohai --help
 ```
 
 ## Планы
-- [ ] Флаг -k/--kodik — пропустить animego и искать напрямую в kodik
+- [X] Флаг -k/--kodik — пропустить animego и искать напрямую в kodik
+- [ ] Переписать 'kohai info'
 - [ ] Тесты (pytest) и CI
 - [ ] Линтинг и проверка типов (ruff, mypy)
 - [X] Разбить cli/commands.py на модули по командам
