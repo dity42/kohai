@@ -34,6 +34,7 @@ def build_parser() -> argparse.ArgumentParser:
     search.add_argument("query", nargs="?", default=None)
     search.add_argument("-q", "--quality", choices=["360", "480", "720"], default=None)
     search.add_argument("-e", "--episode", type=int, default=None)
+    search.add_argument("-k", "--kodik", action='store_true', help="Skip animego search, query kodik directly")
 
     history = subparsers.add_parser("history", help="Show watch history")
     history.add_argument("-l", "--limit", type=int, default=10, help="Number of entries to show (default: 10)")

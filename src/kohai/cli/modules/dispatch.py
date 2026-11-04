@@ -13,7 +13,7 @@ def dispatch(args) -> None:
         return
 
     if args.command == "search":
-        run_search(args.query, args.quality, args.episode)
+        run_search(args)
     elif args.command == "history":
         run_history(args)
     elif args.command == "schedule":
