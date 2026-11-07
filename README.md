@@ -50,7 +50,7 @@ kohai --help
 - [ ] Linting and type checking (ruff, mypy)
 - [X] Split cli/commands.py into per-command modules
 - [ ] Configurable player (mpv args / alternative players)
-- [ ] Tab autocomplete
+- [X] Tab autocomplete
 
 ## Used stack
 - Python 3.14
