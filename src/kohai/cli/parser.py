@@ -25,6 +25,12 @@ def build_parser() -> argparse.ArgumentParser:
         version=f"kohai {version('kohai')}",
     )
 
+    parser.add_argument(
+    "--install-completion",
+    action="store_true",
+    help="Generate and install shell completion scripts for the current shell"
+    )
+
     subparsers = parser.add_subparsers(dest="command", title="commands", metavar="")
     
     help = subparsers.add_parser("help", help="Show this help message")

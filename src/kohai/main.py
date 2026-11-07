@@ -6,6 +6,7 @@ from anime_parsers_ru import errors as api_errors
 from kohai.cli.parser import build_parser
 from kohai.cli.modules.dispatch import dispatch
 from kohai.exceptions import KohaiError
+from kohai.cli.modules.completion import install_completion
 
 LIBRARY_ERRORS = (
     api_errors.TokenError,
@@ -26,6 +27,10 @@ def main() -> None:
     try:
         parser = build_parser()
         args = parser.parse_args()
+        
+        if args.install_completion:
+            install_completion()
+            sys.exit(0)
 
         if args.command is None:
             parser.print_help()
